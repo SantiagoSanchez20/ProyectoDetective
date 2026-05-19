@@ -4,9 +4,8 @@
 
 #ifndef PROYECTODETECTIVE_MAPA_H
 #define PROYECTODETECTIVE_MAPA_H
-//p
+//
 
-#pragma once
 #include "Localizacion.h"
 #include "Pista.h"
 #include "Testigo.h"

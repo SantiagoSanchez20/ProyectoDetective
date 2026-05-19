@@ -5,8 +5,6 @@
 #ifndef PROYECTODETECTIVE_SCORERECORD_H
 #define PROYECTODETECTIVE_SCORERECORD_H
 
-
-#pragma once
 #include <string>
 
 // Nodo del Árbol Binario de Búsqueda de puntajes históricos

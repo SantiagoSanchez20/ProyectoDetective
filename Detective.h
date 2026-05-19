@@ -6,7 +6,6 @@
 #define PROYECTODETECTIVE_DETECTIVE_H
 
 
-#pragma once
 #include <string>
 #include <stack>
 #include <queue>

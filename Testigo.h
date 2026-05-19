@@ -5,7 +5,7 @@
 #ifndef PROYECTODETECTIVE_TESTIGO_H
 #define PROYECTODETECTIVE_TESTIGO_H
 #include <string>
-#pragma once
+
 class Testigo {
 private:
     std::string nombre;

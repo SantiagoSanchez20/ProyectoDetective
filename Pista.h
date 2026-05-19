@@ -5,8 +5,6 @@
 #ifndef PROYECTODETECTIVE_PISTA_H
 #define PROYECTODETECTIVE_PISTA_H
 
-
-#pragma once
 #include <string>
 
 enum class TipoPista {

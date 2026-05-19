@@ -4,7 +4,7 @@
 
 #ifndef PROYECTODETECTIVE_SOSPECHOSO_H
 #define PROYECTODETECTIVE_SOSPECHOSO_H
-#pragma once
+
 #include <string>
 #include <vector>
 //p

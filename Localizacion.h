@@ -6,7 +6,6 @@
 #define PROYECTODETECTIVE_LOCALIZACION_H
 
 
-#pragma once
 #include "Pista.h"
 
 enum class TipoUbicacion {

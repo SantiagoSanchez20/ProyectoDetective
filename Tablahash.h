@@ -5,8 +5,7 @@
 #ifndef PROYECTODETECTIVE_TABLAHASH_H
 #define PROYECTODETECTIVE_TABLAHASH_H
 
-//p
-#pragma once
+//
 #include "Sospechoso.h"
 #include <unordered_map>
 #include <string>
