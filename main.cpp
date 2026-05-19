@@ -149,7 +149,7 @@ int jugarPartida(const std::string& nombreDetective, ScoreRecord*& raizABB) {
             // el índice vuelva a 0 y no nos salgamos del vector (evita desbordamiento)
             std::string decl = atributosCulpable[i % atributosCulpable.size()];
 
-            // NOTA: El (void)decl está aquí solo para que el compilador no moleste
+            // NOTA: El (void) decl está aquí solo para que el compilador no moleste
             // diciendo que la variable no se usa. La pista real se revelará
             // dinámicamente cuando el jugador use la función 'revelarAtributoCulpable()'.
             (void)decl;
