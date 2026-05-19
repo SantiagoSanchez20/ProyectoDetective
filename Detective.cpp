@@ -6,11 +6,11 @@
 
 #include <iostream>
 #include <stack>
-//p
+//
 Detective::Detective(const std::string& nombre)
     : nombre(nombre), puntaje(0), pistasRecogidas(0), posicion(nullptr) {}
 
-// --- Getters ---
+// Getters
 
 std::string Detective::getNombre() const {
     return nombre;
@@ -28,19 +28,19 @@ Location* Detective::getPosicion() const {
     return posicion;
 }
 
-// --- Setters ---
+// Setters
 
 void Detective::setPosicion(Location* posicion) {
     this->posicion = posicion;
 }
 
-// --- Lógica de movimiento ---
+// Movimiento
 
 void Detective::mover() {
     puntaje++;
 }
 
-// --- Lógica de puntaje ---
+// Puntaje
 
 void Detective::setPuntaje(int puntaje) {
     this->puntaje = puntaje;
@@ -62,7 +62,7 @@ void Detective::penalizarPuntaje() {
     puntaje = puntaje * 2;
 }
 
-// --- Gestión de pistas (Pila) ---
+// Pistas (Pila)
 
 void Detective::recogerPista(Pista* pista) {
     pilaPistas.push(pista);
