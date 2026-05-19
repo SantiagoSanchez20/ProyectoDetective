@@ -86,3 +86,76 @@ void abbMostrarRanking(ScoreRecord* raiz) {
     }
     std::cout << "+------------------------------------+\n\n";
 }
+// ── Limpiar la memoria del Árbol Binario de Búsqueda (ABB) ──
+// Usamos un recorrido Post-Orden (Izquierda -> Derecha -> Raíz)
+// para no dejar nodos huérfanos al borrar.
+void abbLiberar(ScoreRecord* raiz) {
+    if (raiz == nullptr) return; // Caso base: si el nodo está vacío, paramos.
+
+    abbLiberar(raiz->izquierda); // Primero va a fondo por la izquierda
+    abbLiberar(raiz->derecha);   // Luego a fondo por la derecha
+    delete raiz;                 // Cuando los hijos ya no existen, borra la raíz actual
+}
+
+// ============================================================
+//  HERRAMIENTAS VISUALES Y DE ENTRADA
+// ============================================================
+
+// Imprime una línea bonita para separar secciones en la consola
+void separador() {
+    std::cout << "\n================================================\n";
+}
+
+// Limpia el flujo de entrada de cin para evitar que los '\n'
+// o datos basura nos salten los próximos cin >> o getline
+void limpiarBuffer() {
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+}
+
+// ============================================================
+//  FLUJO PRINCIPAL DE LA PARTIDA
+// ============================================================
+
+int jugarPartida(const std::string& nombreDetective, ScoreRecord*& raizABB) {
+
+    // 1. Instanciamos los objetos core del juego
+    Mapa      mapa;       // El grafo o matriz de locaciones
+    TablaHash tabla;      // Aquí guardamos los sospechosos (búsqueda rápida O(1))
+    Detective detective(nombreDetective);
+
+    // 2. Ubicamos al jugador en un punto aleatorio del mapa para empezar
+    Location* posInicial = mapa.posicionInicialDetective();
+    detective.setPosicion(posInicial);
+
+    // 3. Obtenemos quién es el malo del paseo desde la tabla hash
+    std::string nombreCulpable = tabla.getNombreCulpable();
+
+    // 4. Preparamos las pistas que los testigos le van a dar al detective
+    {
+        // Lista ordenada de las características que queremos revelar
+        std::vector<std::string> atributosCulpable = {
+            "La estatura del culpable",
+            "El color de cabello del culpable",
+            "El tono de piel del culpable",
+            "La forma de la nariz del culpable",
+            "El sexo del culpable"
+        };
+
+        // Repartimos las pistas entre los testigos disponibles en el mapa
+        auto& testigos = mapa.getTestigos();
+        for (size_t i = 0; i < testigos.size(); ++i) {
+
+            // i % size nos asegura que si hay más de 5 testigos,
+            // el índice vuelva a 0 y no nos salgamos del vector (evita desbordamiento)
+            std::string decl = atributosCulpable[i % atributosCulpable.size()];
+
+            // NOTA: El (void)decl está aquí solo para que el compilador no moleste
+            // diciendo que la variable no se usa. La pista real se revelará
+            // dinámicamente cuando el jugador use la función 'revelarAtributoCulpable()'.
+            (void)decl;
+        }
+    }
+
+    // Al final del juego, este método debería retornar el puntaje
+    // para poder insertarlo en el ABB de puntajes (Leaderboard).
+}
