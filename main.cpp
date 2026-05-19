@@ -156,6 +156,6 @@ int jugarPartida(const std::string& nombreDetective, ScoreRecord*& raizABB) {
         }
     }
 
-    // Al final del juego, este método debería retornar el puntaje
+    // Al final del juego, este metodo debe retornar el puntaje
     // para poder insertarlo en el ABB de puntajes (Leaderboard).
 }
