@@ -15,4 +15,4 @@ std::string Testigo::getDeclaracion() const {
     return declaracion;
 }
 
-//p
+//
