@@ -117,7 +117,6 @@ void limpiarBuffer() {
 // ============================================================
 
 int jugarPartida(const std::string& nombreDetective, ScoreRecord*& raizABB) {
-
     // 1. Instanciamos los objetos core del juego
     Mapa      mapa;       // El grafo o matriz de locaciones
     TablaHash tabla;      // Aquí guardamos los sospechosos (búsqueda rápida O(1))
@@ -158,4 +157,315 @@ int jugarPartida(const std::string& nombreDetective, ScoreRecord*& raizABB) {
 
     // Al final del juego, este metodo debe retornar el puntaje
     // para poder insertarlo en el ABB de puntajes (Leaderboard).
+
+
+    // ── Pantalla de bienvenida ───────────────────────────────
+    separador();
+    std::cout << "  CASO ABIERTO — Bienvenido, detective " << nombreDetective << "!\n";
+    std::cout << "  Recolecta las 10 pistas y acusa al culpable.\n";
+    separador();
+    std::cout << "\n  CONTROLES:\n"
+              << "  W/A/S/D  -> mover (arriba/izq/abajo/der)\n"
+              << "  X        -> usar la ultima pista de la pila\n"
+              << "  T        -> ver pila de pistas recogidas\n"
+              << "  S        -> ver tabla de sospechosos\n"
+              << "  I        -> interrogar testigo de la cola\n"
+              << "  R        -> ver ranking historico\n"
+              << "  Q        -> abandonar partida\n\n";
+
+    mapa.imprimir(detective.getPosicion());
+
+    // ── Loop principal del juego ─────────────────────────────
+    bool partidaActiva = true;
+    bool gano          = false;
+
+    while (partidaActiva) {
+
+        std::cout << nombreDetective
+                  << ", Tu puntaje actual es: "
+                  << detective.getPuntaje()
+                  << "  |  Pistas recogidas: "
+                  << detective.getPistasRecogidas()
+                  << "/10\n";
+        std::cout << "Accion > ";
+
+        char cmd;
+        std::cin >> cmd;
+        cmd = static_cast<char>(toupper(static_cast<unsigned char>(cmd)));
+
+        // ── Movimiento ───────────────────────────────────────
+        if (cmd == 'W' || cmd == 'A' || cmd == 'S' || cmd == 'D') {
+
+            Location* actual  = detective.getPosicion();
+            Location* destino = nullptr;
+
+            if      (cmd == 'W') destino = actual->arriba;
+            else if (cmd == 'S') destino = actual->abajo;
+            else if (cmd == 'A') destino = actual->izquierda;
+            else if (cmd == 'D') destino = actual->derecha;
+
+            // Borde: no hay nodo en esa dirección
+            if (destino == nullptr) {
+                std::cout << "  [!] No puedes salir de la ciudad.\n";
+                detective.mover(); // igual suma 1 punto por intento
+
+                // Edificio en el borde exterior
+            } else if (destino->getTipo() == TipoUbicacion::EDIFICIO) {
+                std::cout << "  [!] Hay un edificio. No puedes pasar.\n";
+                detective.mover();
+
+                // Callejón cerrado: se hace visible pero no se mueve
+            } else if (destino->getTipo() == TipoUbicacion::CALLEJON_CERRADO) {
+                std::cout << "  [!] Callejon cerrado '|'. Busca otra ruta.\n";
+                destino->setDescubierta(true);   // se revela en el tablero
+                detective.mover();
+
+                // Movimiento válido
+            } else {
+                detective.mover();
+                detective.setPosicion(destino);
+
+                // Marcar como descubierta y calle abierta si era NO_VISITADA
+                if (!destino->isDescubierta()) {
+                    destino->setDescubierta(true);
+
+                    TipoUbicacion t = destino->getTipo();
+                    if (t == TipoUbicacion::NO_VISITADA) {
+                        destino->setTipo(TipoUbicacion::CALLE_ABIERTA);
+                    }
+                }
+
+                // ¿Hay pista aquí?
+                if (destino->getPista() != nullptr &&
+                    !destino->getPista()->isUsada()) {
+
+                    Pista* p = destino->getPista();
+                    p->setUsada(true);
+
+                    // Recoger pista
+                    detective.recogerPista(p);
+
+                    // Revelar atributo del culpable
+                    std::string atributo = tabla.revelarAtributoCulpable();
+
+                    std::cout << "\n  *** PISTA ENCONTRADA: ["
+                              << p->getSimbolo() << "] "
+                              << p->getNombreTipo() << " ***\n";
+                    if (!atributo.empty() && atributo != "No hay mas atributos por revelar.") {
+                        std::cout << "  Dato revelado del culpable: "
+                                  << atributo << "\n";
+                    }
+                    std::cout << "  Pistas recogidas: "
+                              << detective.getPistasRecogidas() << "/10\n\n";
+
+                    // ¿Caso completo?
+                    if (detective.casoCompleto()) {
+                        partidaActiva = false; // salimos del loop para acusar
+                    }
+                    }
+
+                // ¿Hay testigo aquí?
+                if (destino->tieneTestigo() && partidaActiva) {
+                    // Buscamos el testigo en la lista del mapa
+                    auto& testigos = mapa.getTestigos();
+                    for (Testigo* t : testigos) {
+                        // Añadimos a la cola (puede añadirse varias veces
+                        // si el detective vuelve, el enunciado no lo restringe)
+                        detective.agregarTestigo(t);
+                        std::cout << "  [W] Testigo encontrado: "
+                                  << t->getNombre()
+                                  << ". Usa 'I' para interrogarlo.\n";
+                        break; // solo el primero no procesado
+                    }
+                }
+            }
+
+            mapa.imprimir(detective.getPosicion());
+
+            // ── Usar pista (X) ───────────────────────────────────
+        } else if (cmd == 'X') {
+
+            if (!detective.tienePistas()) {
+                std::cout << "  No tienes pistas en la pila.\n";
+            } else {
+                Pista* p = detective.usarPista();
+                p->setUsada(false); // volverá al mapa
+
+                std::cout << "\n  Usas la pista ["
+                          << p->getSimbolo() << "] "
+                          << p->getNombreTipo() << ".\n";
+
+                switch (p->getTipo()) {
+
+                    case TipoPista::HUELLA:
+                        detective.reducirPuntajeAMitad();
+                        std::cout << "  [H] Puntaje reducido a la mitad: "
+                                  << detective.getPuntaje() << "\n";
+                        break;
+
+                    case TipoPista::COARTADA:
+                        mapa.eliminarDosCallejones();
+                        std::cout << "  [C] Dos callejones eliminados del mapa.\n";
+                        break;
+
+                    case TipoPista::TESTIMONIO: {
+                        int dado = rand() % 2;
+                        if (dado == 0) {
+                            detective.reducirPuntajeACero();
+                            std::cout << "  [T] Suerte! Puntaje reducido a cero.\n";
+                        } else {
+                            detective.duplicarPuntaje();
+                            std::cout << "  [T] Mala suerte. Puntaje duplicado a: "
+                                      << detective.getPuntaje() << "\n";
+                        }
+                        break;
+                    }
+
+                    case TipoPista::PRUEBA_FORENSE: {
+                        // Teletransporte a posición no descubierta
+                        // (usamos nodoParaTeletransporte via acceso a grilla)
+                        // Como nodoParaTeletransporte es privado, lo simulamos
+                        // buscando un nodo libre con posicionInicialDetective
+                        // alternativa: buscamos en el mapa directamente
+                        Location* nuevo = nullptr;
+                        // Intento hasta 200 veces para encontrar nodo válido
+                        for (int intentos = 0; intentos < 200 && nuevo == nullptr; ++intentos) {
+                            int f = 1 + rand() % (FILAS - 2);
+                            int c = 1 + rand() % (COLUMNAS - 2);
+                            Location* cand = mapa.getNodo(f, c);
+                            if (cand != nullptr &&
+                                !cand->isDescubierta() &&
+                                cand->getTipo() != TipoUbicacion::CALLEJON_CERRADO &&
+                                cand->getTipo() != TipoUbicacion::EDIFICIO) {
+                                nuevo = cand;
+                                }
+                        }
+                        if (nuevo != nullptr) {
+                            detective.setPosicion(nuevo);
+                            nuevo->setDescubierta(true);
+                            nuevo->setTipo(TipoUbicacion::CALLE_ABIERTA);
+                            std::cout << "  [P] Teletransportado a ("
+                                      << nuevo->getFila() << ","
+                                      << nuevo->getColumna() << ").\n";
+                        } else {
+                            std::cout << "  [P] No se encontro posicion libre. Sin efecto.\n";
+                        }
+                        break;
+                    }
+                }
+
+                // La pista vuelve al mapa en posición aleatoria
+                mapa.cubrirMapa();
+                mapa.reubcarPista(p);
+                std::cout << "  La pista ["
+                          << p->getSimbolo()
+                          << "] fue reubicada. El mapa se ha cubierto.\n\n";
+
+                mapa.imprimir(detective.getPosicion());
+            }
+
+            // ── Ver pila de pistas (T) ───────────────────────────
+        } else if (cmd == 'T') {
+            detective.mostrarPilas();
+
+            // ── Ver tabla de sospechosos (S) ─────────────────────
+        } else if (cmd == 'S') {
+            tabla.mostrarRevelados();
+
+            // ── Interrogar testigo de la cola (I) ────────────────
+        } else if (cmd == 'I') {
+            if (!detective.tieneTestigos()) {
+                std::cout << "  No tienes testigos en la cola.\n";
+            } else {
+                Testigo* t = detective.interrogarTestigo();
+                std::string atributo = tabla.revelarAtributoCulpable();
+
+                std::cout << "\n  [Testigo] " << t->getNombre()
+                          << " declara:\n";
+                if (!atributo.empty() && atributo != "No hay mas atributos por revelar.") {
+                    std::cout << "  >> \"El culpable tiene: " << atributo << "\"\n\n";
+                } else {
+                    std::cout << "  >> \"No tengo mas informacion que agregar.\"\n\n";
+                }
+            }
+
+            // ── Ver ranking (R) ──────────────────────────────────
+        } else if (cmd == 'R') {
+            abbMostrarRanking(raizABB);
+
+            // ── Abandonar (Q) ────────────────────────────────────
+        } else if (cmd == 'Q') {
+            std::cout << "  Abandonaste la partida.\n";
+            detective.penalizarPuntaje(); // puntaje se duplica (req. 18 fracaso)
+            partidaActiva = false;
+            gano = false;
+
+        } else {
+            std::cout << "  Comando no reconocido. Usa W/A/S/D, X, T, S, I, R o Q.\n";
+        }
+    } // fin while
+
+    // ============================================================
+    //  FASE DE ACUSACIÓN (req. 18)
+    // ============================================================
+    if (detective.casoCompleto()) {
+        separador();
+        std::cout << "\n  " << nombreDetective
+                  << ", has recolectado las 10 pistas. Es momento de acusar.\n\n";
+
+        // Mostrar tabla completa con lo revelado hasta ahora
+        tabla.mostrarCompleta();
+
+        // Listar nombres de sospechosos
+        std::vector<std::string> nombres = tabla.getNombres();
+        std::cout << "  Sospechosos disponibles: ";
+        for (size_t i = 0; i < nombres.size(); ++i) {
+            std::cout << nombres[i];
+            if (i + 1 < nombres.size()) std::cout << ", ";
+        }
+        std::cout << "\n\n";
+
+        std::cout << "  A quien acusas? > ";
+        limpiarBuffer();
+        std::string acusado;
+        std::getline(std::cin, acusado);
+
+        // Búsqueda O(1) en la tabla hash — explícita para sustentación
+        std::cout << "\n  [TablaHash] Buscando \"" << acusado
+                  << "\" en la tabla hash (O(1) promedio)...\n";
+        Sospechoso* resultado = tabla.buscar(acusado);
+
+        if (resultado == nullptr) {
+            std::cout << "  Ese nombre no esta en el caso. Acusacion invalida.\n";
+            detective.penalizarPuntaje();
+            gano = false;
+        } else if (resultado->isCulpable()) {
+            std::cout << "\n  *** CASO RESUELTO! ***\n";
+            std::cout << "  " << acusado << " era el culpable.\n";
+            std::cout << "  Puntaje final: " << detective.getPuntaje()
+                      << " movimientos.\n";
+            gano = true;
+        } else {
+            std::cout << "\n  Acusacion incorrecta. "
+                      << acusado << " no es el culpable.\n";
+            std::cout << "  El verdadero culpable era: "
+                      << tabla.getNombreCulpable() << ".\n";
+            detective.penalizarPuntaje(); // puntaje se duplica
+            std::cout << "  Puntaje penalizado: " << detective.getPuntaje()
+                      << " movimientos.\n";
+            gano = false;
+        }
+    }
+
+    separador();
+    if (gano) {
+        std::cout << "  VICTORIA! Puntaje final: "
+                  << detective.getPuntaje() << " movimientos.\n";
+    } else {
+        std::cout << "  DERROTA. Puntaje final: "
+                  << detective.getPuntaje() << " movimientos.\n";
+    }
+    separador();
+
+    return detective.getPuntaje();
 }
