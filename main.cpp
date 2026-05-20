@@ -1,9 +1,9 @@
 #include <iostream>
 
-#include <iostream>
+
 #include <string>
 #include <limits>
-#include <cstdlib>
+
 #include <ctime>
 
 #include "Mapa.h"
@@ -97,9 +97,7 @@ void abbLiberar(ScoreRecord* raiz) {
     delete raiz;                 // Cuando los hijos ya no existen, borra la raíz actual
 }
 
-// ============================================================
-//  HERRAMIENTAS VISUALES Y DE ENTRADA
-// ============================================================
+
 
 // Imprime una línea bonita para separar secciones en la consola
 void separador() {
@@ -112,9 +110,7 @@ void limpiarBuffer() {
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
-// ============================================================
-//  FLUJO PRINCIPAL DE LA PARTIDA
-// ============================================================
+// flujo principal de la partida
 
 int jugarPartida(const std::string& nombreDetective, ScoreRecord*& raizABB) {
     // 1. Instanciamos los objetos core del juego
@@ -159,7 +155,7 @@ int jugarPartida(const std::string& nombreDetective, ScoreRecord*& raizABB) {
     // para poder insertarlo en el ABB de puntajes (Leaderboard).
 
 
-    // ── Pantalla de bienvenida ───────────────────────────────
+    // Pantalla de bienvenida
     separador();
     std::cout << "  CASO ABIERTO — Bienvenido, detective " << nombreDetective << "!\n";
     std::cout << "  Recolecta las 10 pistas y acusa al culpable.\n";
@@ -175,7 +171,7 @@ int jugarPartida(const std::string& nombreDetective, ScoreRecord*& raizABB) {
 
     mapa.imprimir(detective.getPosicion());
 
-    // ── Loop principal del juego ─────────────────────────────
+    // Loop principal del juego
     bool partidaActiva = true;
     bool gano          = false;
 
@@ -193,7 +189,7 @@ int jugarPartida(const std::string& nombreDetective, ScoreRecord*& raizABB) {
         std::cin >> cmd;
         cmd = static_cast<char>(toupper(static_cast<unsigned char>(cmd)));
 
-        // ── Movimiento ───────────────────────────────────────
+        // Movimiento
         if (cmd == 'W' || cmd == 'A' || cmd == 'S' || cmd == 'D') {
 
             Location* actual  = detective.getPosicion();
@@ -282,7 +278,7 @@ int jugarPartida(const std::string& nombreDetective, ScoreRecord*& raizABB) {
 
             mapa.imprimir(detective.getPosicion());
 
-            // ── Usar pista (X) ───────────────────────────────────
+            // Usar pista (X)
         } else if (cmd == 'X') {
 
             if (!detective.tienePistas()) {
@@ -364,15 +360,15 @@ int jugarPartida(const std::string& nombreDetective, ScoreRecord*& raizABB) {
                 mapa.imprimir(detective.getPosicion());
             }
 
-            // ── Ver pila de pistas (T) ───────────────────────────
+            //  Ver pila de pistas (T)
         } else if (cmd == 'T') {
             detective.mostrarPilas();
 
-            // ── Ver tabla de sospechosos (S) ─────────────────────
+            // Ver tabla de sospechosos (S)
         } else if (cmd == 'S') {
             tabla.mostrarRevelados();
 
-            // ── Interrogar testigo de la cola (I) ────────────────
+            // Interrogar testigo de la cola (I)
         } else if (cmd == 'I') {
             if (!detective.tieneTestigos()) {
                 std::cout << "  No tienes testigos en la cola.\n";
@@ -389,11 +385,11 @@ int jugarPartida(const std::string& nombreDetective, ScoreRecord*& raizABB) {
                 }
             }
 
-            // ── Ver ranking (R) ──────────────────────────────────
+            // Ver ranking (R)
         } else if (cmd == 'R') {
             abbMostrarRanking(raizABB);
 
-            // ── Abandonar (Q) ────────────────────────────────────
+            // Abandonar (Q)
         } else if (cmd == 'Q') {
             std::cout << "  Abandonaste la partida.\n";
             detective.penalizarPuntaje(); // puntaje se duplica (req. 18 fracaso)
@@ -405,9 +401,6 @@ int jugarPartida(const std::string& nombreDetective, ScoreRecord*& raizABB) {
         }
     } // fin while
 
-    // ============================================================
-    //  FASE DE ACUSACIÓN (req. 18)
-    // ============================================================
     if (detective.casoCompleto()) {
         separador();
         std::cout << "\n  " << nombreDetective
@@ -468,4 +461,107 @@ int jugarPartida(const std::string& nombreDetective, ScoreRecord*& raizABB) {
     separador();
 
     return detective.getPuntaje();
+}
+
+
+void menuPrincipal() {
+
+    std::cout << "\n+==========================================+\n";
+    std::cout << "|        EL CASO DEL DETECTIVE             |\n";
+    std::cout << "|   Proyecto Final — Estructuras de Datos  |\n";
+    std::cout << "+==========================================+\n\n";
+
+    std::cout << "  1. Nueva partida\n";
+    std::cout << "  2. Buscar puntaje de un detective\n";
+    std::cout << "  3. Ver ranking historico\n";
+    std::cout << "  4. Salir\n\n";
+    std::cout << "Opcion > ";
+}
+
+
+int main() {
+    srand(static_cast<unsigned int>(time(nullptr)));
+
+    ScoreRecord* raizABB = nullptr; // ABB de puntajes históricos
+    bool salir = false;
+
+    while (!salir) {
+        menuPrincipal();
+
+        int opcion;
+        std::cin >> opcion;
+
+        switch (opcion) {
+
+            // Nueva partida
+            case 1: {
+                std::cout << "\n  Ingresa tu nombre, detective: ";
+                limpiarBuffer();
+                std::string nombre;
+                std::getline(std::cin, nombre);
+
+                if (nombre.empty()) {
+                    std::cout << "  Nombre invalido.\n";
+                    break;
+                }
+
+                // Verificar si ya jugó antes (req. 22)
+                ScoreRecord* previo = abbBuscar(raizABB, nombre);
+                if (previo != nullptr) {
+                    std::cout << "  " << nombre
+                              << " ya ha jugado. Mejor puntaje previo: "
+                              << previo->getMejorPuntaje()
+                              << " movimientos.\n\n";
+                }
+
+                // Jugar
+                int puntajeFinal = jugarPartida(nombre, raizABB);
+
+                // Guardar en el ABB (req. 19-21)
+                raizABB = abbInsertar(raizABB, nombre, puntajeFinal);
+                std::cout << "  Puntaje guardado en el ABB.\n";
+                break;
+            }
+
+            // Buscar detective requerimiento 22
+            case 2: {
+                std::cout << "\n  Nombre del detective a buscar: ";
+                limpiarBuffer();
+                std::string nombre;
+                std::getline(std::cin, nombre);
+
+                ScoreRecord* rec = abbBuscar(raizABB, nombre);
+                if (rec == nullptr) {
+                    std::cout << "  " << nombre
+                              << " no tiene partidas registradas.\n";
+                } else {
+                    std::cout << "  " << rec->getNombreDetective()
+                              << " | Mejor puntaje: "
+                              << rec->getMejorPuntaje()
+                              << " movimientos.\n";
+                }
+                break;
+            }
+
+            // Ranking requerimiento 23
+            case 3:
+                abbMostrarRanking(raizABB);
+                break;
+
+            // Salir
+            case 4:
+                salir = true;
+                std::cout << "\n  Hasta pronto, detective.\n\n";
+                break;
+
+            default:
+                std::cout << "  Opcion invalida.\n";
+                break;
+        }
+    }
+
+    // Liberar memoria del ABB al cerrar
+    abbLiberar(raizABB);
+
+    return 0;
 }
