@@ -468,7 +468,7 @@ void menuPrincipal() {
 
     std::cout << "\n+==========================================+\n";
     std::cout << "|        EL CASO DEL DETECTIVE             |\n";
-    std::cout << "|   Proyecto Final — Estructuras de Datos  |\n";
+    std::cout << "|   Proyecto Final -- Estructuras de Datos |\n";
     std::cout << "+==========================================+\n\n";
 
     std::cout << "  1. Nueva partida\n";
