@@ -164,7 +164,7 @@ int jugarPartida(const std::string& nombreDetective, ScoreRecord*& raizABB) {
               << "  W/A/S/D  -> mover (arriba/izq/abajo/der)\n"
               << "  X        -> usar la ultima pista de la pila\n"
               << "  T        -> ver pila de pistas recogidas\n"
-              << "  S        -> ver tabla de sospechosos\n"
+              << "  P        -> ver tabla de sospechosos\n"
               << "  I        -> interrogar testigo de la cola\n"
               << "  R        -> ver ranking historico\n"
               << "  Q        -> abandonar partida\n\n";
@@ -364,8 +364,8 @@ int jugarPartida(const std::string& nombreDetective, ScoreRecord*& raizABB) {
         } else if (cmd == 'T') {
             detective.mostrarPilas();
 
-            // Ver tabla de sospechosos (S)
-        } else if (cmd == 'S') {
+            // Ver tabla de sospechosos (P)
+        } else if (cmd == 'P') {
             tabla.mostrarRevelados();
 
             // Interrogar testigo de la cola (I)
