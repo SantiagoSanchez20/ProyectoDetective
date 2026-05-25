@@ -397,7 +397,7 @@ int jugarPartida(const std::string& nombreDetective, ScoreRecord*& raizABB) {
             gano = false;
 
         } else {
-            std::cout << "  Comando no reconocido. Usa W/A/S/D, X, T, S, I, R o Q.\n";
+            std::cout << "  Comando no reconocido. Usa W/A/S/D, X, T, P, I, R o Q.\n";
         }
     } // fin while
 
