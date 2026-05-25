@@ -46,7 +46,7 @@ public:
     std::string getNombreCulpable() const;
 
     // Muestra en pantalla la tabla con los atributos revelados hasta el momento
-    // (tecla 'S' durante el juego)
+    // (tecla 'P' durante el juego)
     void mostrarRevelados() const;
 
     // Muestra en pantalla la tabla completa con todos los atributos
