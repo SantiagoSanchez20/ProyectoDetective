@@ -64,12 +64,12 @@ void Detective::penalizarPuntaje() {
 
 // Pistas (Pila)
 
-void Detective::recogerPista(Pista* pista) {
+void Detective::recogerPista(Pista* pista) { //Una simple pila para guardar las pistas
     pilaPistas.push(pista);
     pistasRecogidas++;
 }
 
-Pista* Detective::usarPista() {
+Pista* Detective::usarPista() { //Se usan en estilo LIFO con un top y un pop.
     if (pilaPistas.empty()) return nullptr;
     Pista* p = pilaPistas.top();
     pilaPistas.pop();
@@ -77,7 +77,7 @@ Pista* Detective::usarPista() {
     return p;
 }
 
-Pista* Detective::verUltimaPista() const {
+Pista* Detective::verUltimaPista() const { //Nuevamente un acceso LIFO al tope con top
     if (pilaPistas.empty()) return nullptr;
     return pilaPistas.top();
 }
@@ -124,11 +124,11 @@ void Detective::mostrarPilas() const {
 
 // --- Gestión de testigos (Cola) ---
 
-void Detective::agregarTestigo(Testigo* testigo) {
+void Detective::agregarTestigo(Testigo* testigo) { //Entran con FIFO a una cola
     colaTestigos.push(testigo);
 }
 
-Testigo* Detective::interrogarTestigo() {
+Testigo* Detective::interrogarTestigo() { //Se interrogan nuevamente en FIFO
     if (colaTestigos.empty()) return nullptr;
     Testigo* t = colaTestigos.front();
     colaTestigos.pop();

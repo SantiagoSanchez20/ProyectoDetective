@@ -1,5 +1,5 @@
 #include <iostream>
-
+#include <algorithm>
 
 #include <string>
 #include <limits>
@@ -66,13 +66,10 @@ void abbMostrarRanking(ScoreRecord* raiz) {
     }
 
     // Ordenar por puntaje ascendente (mejor = menos movimientos)
-    for (size_t i = 0; i < vec.size(); ++i) {
-        for (size_t j = i + 1; j < vec.size(); ++j) {
-            if (vec[j]->getMejorPuntaje() < vec[i]->getMejorPuntaje()) {
-                std::swap(vec[i], vec[j]);
-            }
-        }
-    }
+    std::sort(vec.begin(), vec.end(),
+        [](const ScoreRecord* a, const ScoreRecord* b) {
+            return a->getMejorPuntaje() < b->getMejorPuntaje();
+        });
 
     std::cout << "\n+------------------------------------+\n";
     std::cout << "|   RANKING HISTORICO DE DETECTIVES  |\n";
@@ -127,7 +124,6 @@ int jugarPartida(const std::string& nombreDetective, ScoreRecord*& raizABB) {
 
     // 4. Preparamos las pistas que los testigos le van a dar al detective
     {
-        // Lista ordenada de las características que queremos revelar
         std::vector<std::string> atributosCulpable = {
             "La estatura del culpable",
             "El color de cabello del culpable",
@@ -136,18 +132,9 @@ int jugarPartida(const std::string& nombreDetective, ScoreRecord*& raizABB) {
             "El sexo del culpable"
         };
 
-        // Repartimos las pistas entre los testigos disponibles en el mapa
         auto& testigos = mapa.getTestigos();
         for (size_t i = 0; i < testigos.size(); ++i) {
-
-            // i % size nos asegura que si hay más de 5 testigos,
-            // el índice vuelva a 0 y no nos salgamos del vector (evita desbordamiento)
-            std::string decl = atributosCulpable[i % atributosCulpable.size()];
-
-            // NOTA: El (void) decl está aquí solo para que el compilador no moleste
-            // diciendo que la variable no se usa. La pista real se revelará
-            // dinámicamente cuando el jugador use la función 'revelarAtributoCulpable()'.
-            (void)decl;
+            testigos[i]->setDeclaracion(atributosCulpable[i % atributosCulpable.size()]);
         }
     }
 
@@ -318,34 +305,13 @@ int jugarPartida(const std::string& nombreDetective, ScoreRecord*& raizABB) {
                     }
 
                     case TipoPista::PRUEBA_FORENSE: {
-                        // Teletransporte a posición no descubierta
-                        // (usamos nodoParaTeletransporte via acceso a grilla)
-                        // Como nodoParaTeletransporte es privado, lo simulamos
-                        // buscando un nodo libre con posicionInicialDetective
-                        // alternativa: buscamos en el mapa directamente
-                        Location* nuevo = nullptr;
-                        // Intento hasta 200 veces para encontrar nodo válido
-                        for (int intentos = 0; intentos < 200 && nuevo == nullptr; ++intentos) {
-                            int f = 1 + rand() % (FILAS - 2);
-                            int c = 1 + rand() % (COLUMNAS - 2);
-                            Location* cand = mapa.getNodo(f, c);
-                            if (cand != nullptr &&
-                                !cand->isDescubierta() &&
-                                cand->getTipo() != TipoUbicacion::CALLEJON_CERRADO &&
-                                cand->getTipo() != TipoUbicacion::EDIFICIO) {
-                                nuevo = cand;
-                                }
-                        }
-                        if (nuevo != nullptr) {
-                            detective.setPosicion(nuevo);
-                            nuevo->setDescubierta(true);
-                            nuevo->setTipo(TipoUbicacion::CALLE_ABIERTA);
-                            std::cout << "  [P] Teletransportado a ("
-                                      << nuevo->getFila() << ","
-                                      << nuevo->getColumna() << ").\n";
-                        } else {
-                            std::cout << "  [P] No se encontro posicion libre. Sin efecto.\n";
-                        }
+                        Location* nuevo = mapa.nodoParaTeletransporte();
+                        detective.setPosicion(nuevo);
+                        nuevo->setDescubierta(true);
+                        nuevo->setTipo(TipoUbicacion::CALLE_ABIERTA);
+                        std::cout << "  [P] Teletransportado a ("
+                                  << nuevo->getFila() << ","
+                                  << nuevo->getColumna() << ").\n";
                         break;
                     }
                 }
@@ -374,12 +340,11 @@ int jugarPartida(const std::string& nombreDetective, ScoreRecord*& raizABB) {
                 std::cout << "  No tienes testigos en la cola.\n";
             } else {
                 Testigo* t = detective.interrogarTestigo();
-                std::string atributo = tabla.revelarAtributoCulpable();
+                std::string declaracion = t->getDeclaracion();
 
-                std::cout << "\n  [Testigo] " << t->getNombre()
-                          << " declara:\n";
-                if (!atributo.empty() && atributo != "No hay mas atributos por revelar.") {
-                    std::cout << "  >> \"El culpable tiene: " << atributo << "\"\n\n";
+                std::cout << "\n  [Testigo] " << t->getNombre() << " declara:\n";
+                if (!declaracion.empty() && declaracion != "declaracion_pendiente") {
+                    std::cout << "  >> \"El culpable tiene: " << declaracion << "\"\n\n";
                 } else {
                     std::cout << "  >> \"No tengo mas informacion que agregar.\"\n\n";
                 }

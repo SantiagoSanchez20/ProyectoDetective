@@ -1,7 +1,3 @@
-//
-// Created by ASUS on 12/05/2026.
-//
-
 #include "Testigo.h"
 
 Testigo::Testigo(const std::string& nombre, const std::string& declaracion)
@@ -15,4 +11,6 @@ std::string Testigo::getDeclaracion() const {
     return declaracion;
 }
 
-//
+void Testigo::setDeclaracion(const std::string& dec) {
+    declaracion = dec;
+}
