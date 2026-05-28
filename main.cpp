@@ -93,7 +93,16 @@ void abbLiberar(ScoreRecord* raiz) {
     delete raiz;                 // Cuando los hijos ya no existen, borra la raíz actual
 }
 
-
+void mostrarControles() {
+    std::cout << "\n  CONTROLES:\n"
+              << "  W/A/S/D  -> mover (arriba/izq/abajo/der)\n"
+              << "  X        -> usar la ultima pista de la pila\n"
+              << "  T        -> ver pila de pistas recogidas\n"
+              << "  P        -> ver tabla de sospechosos\n"
+              << "  I        -> interrogar testigo de la cola\n"
+              << "  R        -> ver ranking historico\n"
+              << "  Q        -> abandonar partida\n\n";
+}
 
 // Imprime una línea bonita para separar secciones en la consola
 void separador() {
@@ -147,17 +156,9 @@ int jugarPartida(const std::string& nombreDetective, ScoreRecord*& raizABB) {
     std::cout << "  CASO ABIERTO -- Bienvenido, detective " << nombreDetective << "!\n";
     std::cout << "  Recolecta las 10 pistas y acusa al culpable.\n";
     separador();
-    std::cout << "\n  CONTROLES:\n"
-              << "  W/A/S/D  -> mover (arriba/izq/abajo/der)\n"
-              << "  X        -> usar la ultima pista de la pila\n"
-              << "  T        -> ver pila de pistas recogidas\n"
-              << "  P        -> ver tabla de sospechosos\n"
-              << "  I        -> interrogar testigo de la cola\n"
-              << "  R        -> ver ranking historico\n"
-              << "  Q        -> abandonar partida\n\n";
+    mostrarControles();
 
     mapa.imprimir(detective.getPosicion());
-
     // Loop principal del juego
     bool partidaActiva = true;
     bool gano          = false;
@@ -256,8 +257,9 @@ int jugarPartida(const std::string& nombreDetective, ScoreRecord*& raizABB) {
                 }
             }
 
-
+            mostrarControles();
             mapa.imprimir(detective.getPosicion());
+
 
             // Usar pista (X)
         } else if (cmd == 'X') {
