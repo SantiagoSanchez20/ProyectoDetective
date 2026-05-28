@@ -144,7 +144,7 @@ int jugarPartida(const std::string& nombreDetective, ScoreRecord*& raizABB) {
 
     // Pantalla de bienvenida
     separador();
-    std::cout << "  CASO ABIERTO — Bienvenido, detective " << nombreDetective << "!\n";
+    std::cout << "  CASO ABIERTO -- Bienvenido, detective " << nombreDetective << "!\n";
     std::cout << "  Recolecta las 10 pistas y acusa al culpable.\n";
     separador();
     std::cout << "\n  CONTROLES:\n"
@@ -454,7 +454,7 @@ int main() {
 
             // Nueva partida
             case 1: {
-                std::cout << "\n  Ingresa tu nombre, detective: ";
+                std::cout << "\nIngresa tu nombre, detective:  ";
                 limpiarBuffer();
                 std::string nombre;
                 std::getline(std::cin, nombre);

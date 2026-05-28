@@ -172,11 +172,35 @@ void TablaHash::mostrarCompleta() const {
     std::cout << "|          SOSPECHOSOS - FASE DE ACUSACION         |\n";
     std::cout << "+--------------------------------------------------+\n";
 
+    // Misma lógica que mostrarRevelados()
+    const Sospechoso& culpable = tabla.at(nombreCulpable);
+    const std::vector<std::string>& revelados = culpable.getAtributosRevelados();
+
     for (const auto& par : tabla) {
         const Sospechoso& s = par.second;
+        std::vector<std::string> coincidencias;
 
-        // toStringRevelado() muestra lo que el detective descubrió hasta ahora
-        std::cout << "  " << s.toStringRevelado() << "\n";
+        for (const std::string& atr : revelados) {
+            if (atr == s.getEstatura()   ||
+                atr == s.getCabello()    ||
+                atr == s.getPiel()       ||
+                atr == s.getNariz()      ||
+                atr == s.getSexo()       ||
+                atr == s.getDominancia()) {
+                coincidencias.push_back(atr);
+                }
+        }
+
+        std::cout << "  " << s.getNombre() << " | atributos confirmados: ";
+        if (coincidencias.empty()) {
+            std::cout << "-";
+        } else {
+            for (size_t i = 0; i < coincidencias.size(); ++i) {
+                std::cout << coincidencias[i];
+                if (i + 1 < coincidencias.size()) std::cout << ", ";
+            }
+        }
+        std::cout << "\n";
     }
 
     std::cout << "+--------------------------------------------------+\n\n";
