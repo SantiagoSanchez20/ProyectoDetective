@@ -7,6 +7,7 @@
 
 
 #include "Pista.h"
+#include "Testigo.h"
 
 enum class TipoUbicacion {
     NO_VISITADA,      // 'o'
@@ -24,7 +25,7 @@ private:
     TipoUbicacion tipo;
     bool          descubierta;
     Pista*        pista;    // nullptr si no hay pista
-    bool          testigo;  // true si hay un testigo aquí
+    Testigo* testigo;  // true si hay un testigo aquí
 
 public:
     // Punteros de la lista múltiplemente enlazada (públicos por diseño del TAD)
@@ -44,12 +45,13 @@ public:
     bool          isDescubierta()  const;
     Pista*        getPista()       const;
     bool          tieneTestigo()   const;
+    Testigo* getTestigo() const;
     //p
     // Setters
     void setTipo(TipoUbicacion tipo);
     void setDescubierta(bool descubierta);
     void setPista(Pista* pista);
-    void setTestigo(bool testigo);
+    void setTestigo(Testigo* t);
 
     // Utilidades
     char getSimbolo(bool esDetective) const;

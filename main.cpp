@@ -11,7 +11,6 @@
 #include "Tablahash.h"
 #include "Scorerecord.h"
 
-
 // Insertar / actualizar  (ABB)
 ScoreRecord* abbInsertar(ScoreRecord* raiz,
                          const std::string& nombre,
@@ -124,12 +123,13 @@ int jugarPartida(const std::string& nombreDetective, ScoreRecord*& raizABB) {
 
     // 4. Preparamos las pistas que los testigos le van a dar al detective
     {
+        Sospechoso* culpable = tabla.buscar(tabla.getNombreCulpable());
         std::vector<std::string> atributosCulpable = {
-            "La estatura del culpable",
-            "El color de cabello del culpable",
-            "El tono de piel del culpable",
-            "La forma de la nariz del culpable",
-            "El sexo del culpable"
+            culpable->getEstatura(),
+            culpable->getCabello(),
+            culpable->getPiel(),
+            culpable->getNariz(),
+            culpable->getSexo()
         };
 
         auto& testigos = mapa.getTestigos();
@@ -163,7 +163,6 @@ int jugarPartida(const std::string& nombreDetective, ScoreRecord*& raizABB) {
     bool gano          = false;
 
     while (partidaActiva) {
-
         std::cout << nombreDetective
                   << ", Tu puntaje actual es: "
                   << detective.getPuntaje()
@@ -249,19 +248,14 @@ int jugarPartida(const std::string& nombreDetective, ScoreRecord*& raizABB) {
 
                 // ¿Hay testigo aquí?
                 if (destino->tieneTestigo() && partidaActiva) {
-                    // Buscamos el testigo en la lista del mapa
-                    auto& testigos = mapa.getTestigos();
-                    for (Testigo* t : testigos) {
-                        // Añadimos a la cola (puede añadirse varias veces
-                        // si el detective vuelve, el enunciado no lo restringe)
-                        detective.agregarTestigo(t);
-                        std::cout << "  [W] Testigo encontrado: "
-                                  << t->getNombre()
-                                  << ". Usa 'I' para interrogarlo.\n";
-                        break; // solo el primero no procesado
-                    }
+                    Testigo* t = destino->getTestigo();   // el testigo real de esa celda
+                    detective.agregarTestigo(t);          // entra a la cola igual que antes
+                    std::cout << "  [W] Testigo encontrado: "
+                              << t->getNombre()
+                              << ". Usa 'I' para interrogarlo.\n";
                 }
             }
+
 
             mapa.imprimir(detective.getPosicion());
 

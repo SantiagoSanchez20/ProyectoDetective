@@ -16,20 +16,20 @@
 
 const std::vector<Sospechoso> TablaHash::POOL_SOSPECHOSOS = {
     // Sospechoso(nombre, estatura, cabello, piel, nariz, sexo, dominancia)
-    Sospechoso("Carlos",   "alto",    "negro",   "morena", "aguileña", "masculino", "diestro"),
-    Sospechoso("Diana",    "alta",    "rubio",   "clara",  "recta",    "femenino",  "zurda"),
-    Sospechoso("Eduardo",  "mediano", "castaño", "clara",  "chata",    "masculino", "diestro"),
-    Sospechoso("Fernanda", "alta",    "rojo",    "clara",  "recta",    "femenino",  "diestra"),
-    Sospechoso("Gonzalo",  "bajo",    "negro",   "oscura", "aguileña", "masculino", "zurdo"),
-    Sospechoso("Hilda",    "alta",    "castaño", "morena", "chata",    "femenino",  "diestra"),
-    Sospechoso("Ivan",     "alto",    "rubio",   "clara",  "recta",    "masculino", "diestro"),
-    Sospechoso("Julia",    "baja",    "negro",   "oscura", "chata",    "femenino",  "zurda"),
-    Sospechoso("Kevin",    "mediano", "rojo",    "clara",  "aguileña", "masculino", "diestro"),
-    Sospechoso("Laura",    "alta",    "negro",   "morena", "recta",    "femenino",  "diestra"),
-    Sospechoso("Miguel",   "alto",    "castaño", "oscura", "chata",    "masculino", "zurdo"),
-    Sospechoso("Natalia",  "mediana", "rubio",   "clara",  "aguileña", "femenino",  "diestra"),
-    Sospechoso("Oscar",    "bajo",    "negro",   "morena", "recta",    "masculino", "diestro"),
-    Sospechoso("Patricia", "alta",    "rojo",    "oscura", "chata",    "femenino",  "zurda")
+    Sospechoso("Carlos",   "estatura - alto",    "cabello - negro",   "piel - morena", "nariz - aguilenna", "sexo - masculino", "mano - diestro"),
+    Sospechoso("Diana",    "estatura - alto",    "cabello - rubio",   "piel - clara",  "nariz - recta",    "sexo - femenino",  "mano - zurdo"),
+    Sospechoso("Eduardo",  "estatura - mediano", "cabello - castanno", "piel - clara",  "nariz - chata",    "sexo - masculino", "mano - diestro"),
+    Sospechoso("Fernanda", "estatura - alto",    "cabello - rojo",    "piel - clara",  "nariz - recta",    "sexo - femenino",  "mano - diestro"),
+    Sospechoso("Gonzalo",  "estatura - bajo",    "cabello - negro",   "piel - oscura", "nariz - aguilenna", "sexo - masculino", "mano - zurdo"),
+    Sospechoso("Hilda",    "estatura - alto",    "cabello - castanno", "piel - morena", "nariz - chata",    "sexo - femenino",  "mano - diestro"),
+    Sospechoso("Ivan",     "estatura - alto",    "cabello - rubio",   "piel - clara",  "nariz - recta",    "sexo - masculino", "mano - diestro"),
+    Sospechoso("Julia",    "estatura - bajo",    "cabello - negro",   "piel - oscura", "nariz - chata",    "sexo - femenino",  "mano - zurdo"),
+    Sospechoso("Kevin",    "estatura - mediano", "cabello - rojo",    "piel - clara",  "nariz - aguilenna", "sexo - masculino", "mano - diestro"),
+    Sospechoso("Laura",    "estatura - alto",    "cabello - negro",   "piel - morena", "nariz - recta",    "sexo - femenino",  "mano - diestro"),
+    Sospechoso("Miguel",   "estatura - alto",    "cabello - castanno", "piel - oscura", "nariz - chata",    "sexo - masculino", "mano - zurdo"),
+    Sospechoso("Natalia",  "estatura - mediano", "cabello - rubio",   "piel - clara",  "nariz - aguilenna", "sexo - femenino",  "mano - diestro"),
+    Sospechoso("Oscar",    "estatura - bajo",    "cabello - negro",   "piel - morena", "nariz - recta",    "sexo - masculino", "mano - diestro"),
+    Sospechoso("Patricia", "estatura - alto",    "cabello - rojo",    "piel - oscura", "nariz - chata",    "sexo - femenino",  "mano - zurda")
 };
 
 // ============================================================
@@ -128,22 +128,37 @@ std::string TablaHash::revelarAtributoCulpable() {
 // ============================================================
 
 void TablaHash::mostrarRevelados() const {
-    std::cout << "\n+-----------------------------------------+\n";
-    std::cout << "|       SOSPECHOSOS DEL CASO              |\n";
-    std::cout << "| (atributos del culpable revelados)      |\n";
-    std::cout << "+-----------------------------------------+\n";
+    // Obtenemos los atributos ya revelados del culpable
+    const Sospechoso& culpable = tabla.at(nombreCulpable);
+    const std::vector<std::string>& revelados = culpable.getAtributosRevelados();
 
-    // Recorremos todos los pares (clave, valor) de la tabla
     for (const auto& par : tabla) {
-        // par.first  = nombre (clave)
-        // par.second = objeto Sospechoso (valor)
         const Sospechoso& s = par.second;
+        std::vector<std::string> coincidencias;
 
-        // toStringRevelado() muestra solo los atributos ya descubiertos
-        std::cout << "  " << s.toStringRevelado() << "\n";
+        // Checamos qué atributos revelados del culpable coinciden con este sospechoso
+        for (const std::string& atr : revelados) {
+            if (atr == s.getEstatura()   ||
+                atr == s.getCabello()    ||
+                atr == s.getPiel()       ||
+                atr == s.getNariz()      ||
+                atr == s.getSexo()       ||
+                atr == s.getDominancia()) {
+                coincidencias.push_back(atr);
+                }
+        }
+
+        std::cout << "  " << s.getNombre() << " | atributos confirmados: ";
+        if (coincidencias.empty()) {
+            std::cout << "-";
+        } else {
+            for (size_t i = 0; i < coincidencias.size(); ++i) {
+                std::cout << coincidencias[i];
+                if (i + 1 < coincidencias.size()) std::cout << ", ";
+            }
+        }
+        std::cout << "\n";
     }
-
-    std::cout << "+-----------------------------------------+\n\n";
 }
 
 // ============================================================

@@ -9,7 +9,7 @@
 
 Location::Location(int fila, int columna, TipoUbicacion tipo)
     : fila(fila), columna(columna), tipo(tipo),
-      descubierta(false), pista(nullptr), testigo(false),
+      descubierta(false), pista(nullptr), testigo(nullptr),
       arriba(nullptr), abajo(nullptr),
       izquierda(nullptr), derecha(nullptr) {}
 //p
@@ -39,8 +39,12 @@ Pista* Location::getPista() const {
     return pista;
 }
 
-bool Location::tieneTestigo() const {
-    return testigo;
+bool Location::tieneTestigo() const { return testigo != nullptr; }
+Testigo* Location::getTestigo() const { return testigo; }
+
+void Location::setTestigo(Testigo* t) {
+    this->testigo = t;
+    if (t) this->tipo = TipoUbicacion::CON_TESTIGO;
 }
 
 // --- Setters ---
@@ -57,13 +61,6 @@ void Location::setPista(Pista* pista) {
     this->pista = pista;
     if (pista != nullptr) {
         this->tipo = TipoUbicacion::CON_PISTA;
-    }
-}
-
-void Location::setTestigo(bool testigo) {
-    this->testigo = testigo;
-    if (testigo) {
-        this->tipo = TipoUbicacion::CON_TESTIGO;
     }
 }
 

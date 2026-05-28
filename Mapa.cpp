@@ -185,7 +185,7 @@ void Mapa::colocarTestigos() {
     // Nombres y declaraciones predefinidas
     // La declaración revela un atributo del culpable (se asignará en Juego)
     std::vector<std::string> nombres = {
-        "Don Ramón", "La Vecina", "El Taxista", "La Enfermera", "El Estudiante"
+        "Don Ramon", "La Vecina", "El Taxista", "La Enfermera", "El Estudiante"
     };
 
     int colocados = 0;
@@ -200,7 +200,7 @@ void Mapa::colocarTestigos() {
         if (nodo->getTipo() == TipoUbicacion::NO_VISITADA) {
             // La declaración real se asignará en Juego cuando se conozca al culpable
             Testigo* t = new Testigo(nombres[colocados], "declaracion_pendiente");
-            nodo->setTestigo(true);       // marca el nodo como CON_TESTIGO
+            nodo->setTestigo(t);      // marca el nodo como CON_TESTIGO
             testigos.push_back(t);        // guardamos el testigo
             colocados++;
         }
